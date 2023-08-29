@@ -292,7 +292,7 @@ class DHT extends EventEmitter {
     const v = typeof opts.v === 'string' ? Buffer.from(opts.v) : opts.v
     const key = isMutable
       ? this._hash(opts.salt ? Buffer.concat([opts.k, opts.salt]) : opts.k)
-      : this._hash(Buffer.from(bencode.encode(v)))
+      : this._hash(toBuffer(bencode.encode(v)))
 
     const table = this._tables.get(key.toString('hex'))
     if (!table) return this._preput(key, opts, cb)
@@ -387,7 +387,7 @@ class DHT extends EventEmitter {
           if (!value || r.seq > value.seq) value = r
         }
       } else {
-        if (hash(Buffer.from(bencode.encode(r.v))).equals(key)) {
+        if (hash(toBuffer(bencode.encode(r.v))).equals(key)) {
           value = r
           return false
         }
@@ -618,7 +618,7 @@ class DHT extends EventEmitter {
 
     const key = isMutable
       ? this._hash(a.salt ? Buffer.concat([a.k, a.salt]) : a.k)
-      : this._hash(Buffer.from(bencode.encode(v)))
+      : this._hash(toBuffer(bencode.encode(v)))
     const keyHex = key.toString('hex')
 
     this.emit('put', key, v)
@@ -778,7 +778,7 @@ function parseIp (buf, offset) {
 function encodeSigData (msg) {
   const ref = { seq: msg.seq || 0, v: msg.v }
   if (msg.salt) ref.salt = msg.salt
-  return Buffer.from(bencode.encode(ref).slice(1, -1))
+  return toBuffer(bencode.encode(ref).slice(1, -1))
 }
 
 function toNode (node) {
